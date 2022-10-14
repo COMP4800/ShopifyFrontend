@@ -77,10 +77,9 @@ def initialize_frontend():
 # Get all orders from Client ID to date
 @app.route('/orders/<client_id>')
 def get_client_orders(client_id):
-    orders = collection.find()
-    data = json.loads(json_util.dumps(list(orders)))
     # Query database for result
-    # data = [_each for _each in DB["orders"] if _each["client_id"] == int(f"{client_id}")]
+    orders = collection.find({"shopify_id": client_id})
+    data = json.loads(json_util.dumps(list(orders)))
     # Return result of query in Data
     return {"client_id": client_id, "data": data}
 
