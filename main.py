@@ -88,31 +88,43 @@ def get_client_orders(client_id):
 @app.route('/orders/<client_id>/<year>')
 def get_client_orders_year(client_id, year):
     # Query database for result
-    data = []
-    for _each in DB["orders"]:
-        if _each["client_id"] == int(f"{client_id}"):
-            date = _each["month"]
-            if re.search(f"/{year}", f"{date}"):
-                data.append(_each)
+    orders = collection.find({"shopify_id": client_id})
+    data = json.loads(json_util.dumps(list(orders)))
+    parsed_data = []
+    for _each in data:
+        date = _each["date"]
+        if re.search(f"/{year}", f"{date}"):
+            parsed_data.append(_each)
     # Return result of query in Data
     return {"client_id": client_id,
             "year": year,
-            "data": data}
+            "data": parsed_data}
 
 
 # Get all orders from a specified year and month of Client ID to date
 @app.route('/orders/<client_id>/<year>/<month>')
 def get_client_orders_year_month(client_id, year, month):
     # Query database for result
-    data = []
-    for _each in DB["orders"]:
-        if _each["client_id"] == int(f"{client_id}"):
-            date = _each["month"]
-            if re.search(f"^{month}./{year}", f"{date}"):
-                data.append(_each)
+    orders = collection.find({"shopify_id": client_id})
+    data = json.loads(json_util.dumps(list(orders)))
+    parsed_data = []
+    for _each in data:
+        date = _each["date"]
+        if re.search(f"/{year}", f"{date}"):
+            if date[1] == "/":
+                striped_string = date[0]
+                print(striped_string)
+                if int(month) < int(striped_string):
+                    parsed_data.append(_each)
+            else:
+                striped_string = date[0:2]
+                print(striped_string)
+                if int(month) < int(striped_string):
+                    parsed_data.append(_each)
+            # parsed_data.append(_each)
 
     # Return result of query in Data
     return {"client_id": client_id,
             "year": year,
             "month": month,
-            "data": "REPLACE ME"}
+            "data": parsed_data}
