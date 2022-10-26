@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from flask import Flask
 import re
@@ -11,6 +12,7 @@ MONGO_CONNECTION_URI = "mongodb+srv://adminTester:ETh5oidcvfuVCwWr@testingground
 client = pymongo.MongoClient(MONGO_CONNECTION_URI)
 DB = client.get_database('EightXTest')
 collection = DB.get_collection('Orders')
+
 
 # Pseudo DB
 # Db = {
@@ -128,3 +130,23 @@ def get_client_orders_year_month(client_id, year, month):
             "year": year,
             "month": month,
             "data": parsed_data}
+
+
+@app.route('/orders/<client_id>/transform/<customer_id>')
+def get_client_first_order_date(client_id, customer_id):
+    # Query database for result
+    orders = collection.find({"shopify_id": client_id})
+    data = json.loads(json_util.dumps(list(orders)))
+    parsed_data = []
+    time_data = []
+    # Return result of query in Data
+    for _each in data:
+        cid = _each["customer_id"]
+        if re.search(f"{customer_id}", f"{cid}"):
+            parsed_data.append(_each.get("date"))
+    dates = [datetime.datetime.strptime(ts, "%m/%d/%Y") for ts in parsed_data]
+    dates.sort()
+    sorted_dates = [datetime.datetime.strftime(ts, "%m/%d/%Y") for ts in dates]
+    first_date = sorted_dates[0]
+    return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
+
