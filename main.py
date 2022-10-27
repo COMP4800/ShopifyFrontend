@@ -1,10 +1,14 @@
 import json
 import datetime
-
 from flask import Flask
 import re
 import pymongo
+from botocore.exceptions import ClientError
 from bson import json_util
+import boto3
+
+
+
 
 app = Flask(__name__)
 
@@ -13,6 +17,19 @@ client = pymongo.MongoClient(MONGO_CONNECTION_URI)
 DB = client.get_database('EightXTest')
 collection = DB.get_collection('Orders')
 
+dynamodb = boto3.resource(service_name='dynamodb')
+dynamodb_client = boto3.client(service_name='dynamodb')
+
+
+def get_items_from_db(table_name):
+    try:
+        table = dynamodb.Table(table_name)
+        response = table.scan()['Items']
+        print(response)
+    except ClientError as e:
+        print(f"error: {e}")
+    else:
+        print(response)
 
 # Pseudo DB
 # Db = {
