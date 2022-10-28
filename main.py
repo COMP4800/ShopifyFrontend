@@ -219,6 +219,28 @@ def initialize_frontend():
 #     return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
 
 
+@app.route('/orders/<year>/<month>/<day>')
+def get_daily_orders(year, month, day):
+    try:
+        # table = dynamodb.Table("keep-it-wild-az")
+        table = dynamodb.Table("test1")
+        response = table.scan(
+            # FilterExpression=filter_expression
+        )
+        data = response['Items']
+        parsed_data = []
+        for each_item in response['Items']:
+            date_year = str(each_item["OrderDate"])[0:4]
+            date_month = str(each_item["OrderDate"])[5:7]
+            date_day = str(each_item["OrderDate"])[8:10]
+            if date_year == year and date_month == month and date_day == day:
+                # date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
+                # if date.year == int(year) and date.month == int(month):
+                parsed_data.append(each_item)
+        return parsed_data
+    except ClientError as err:
+        return {"err": err}
+
 @app.route('/orders/<year>/<month>')
 def get_monthly_orders(year, month):
     """
@@ -259,23 +281,32 @@ def get_monthly_orders(year, month):
 
 
     try:
-        table = dynamodb.Table("keep-it-wild-az")
+        # table = dynamodb.Table("keep-it-wild-az")
+        table = dynamodb.Table("test1")
         response = table.scan(
             # FilterExpression=filter_expression
         )
         data = response['Items']
         parsed_data = []
-        while 'LastEvaluatedKey' in response:
-            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-            data.extend(response['Items'])
-            print(len(data))
-            for each_item in response['Items']:
-                date_year = str(each_item["OrderDate"])[0:4]
-                date_month = str(each_item["OrderDate"])[5:7]
-                if date_year == year and date_month == month:
+        for each_item in response['Items']:
+            date_year = str(each_item["OrderDate"])[0:4]
+            date_month = str(each_item["OrderDate"])[5:7]
+            if date_year == year and date_month == month:
                 # date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
                 # if date.year == int(year) and date.month == int(month):
-                    parsed_data.append(each_item)
+                parsed_data.append(each_item)
+
+        # while 'LastEvaluatedKey' in response:
+        #     response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        #     data.extend(response['Items'])
+        #     print(len(data))
+        #     for each_item in response['Items']:
+        #         date_year = str(each_item["OrderDate"])[0:4]
+        #         date_month = str(each_item["OrderDate"])[5:7]
+        #         if date_year == year and date_month == month:
+        #         # date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
+        #         # if date.year == int(year) and date.month == int(month):
+        #             parsed_data.append(each_item)
 
         return parsed_data
     except ClientError as err:
