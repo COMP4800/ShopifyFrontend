@@ -6,8 +6,7 @@ import pymongo
 from botocore.exceptions import ClientError
 from bson import json_util
 import boto3
-
-
+import os
 
 
 app = Flask(__name__)
@@ -17,8 +16,14 @@ client = pymongo.MongoClient(MONGO_CONNECTION_URI)
 DB = client.get_database('EightXTest')
 collection = DB.get_collection('Orders')
 
-dynamodb = boto3.resource(service_name='dynamodb')
-dynamodb_client = boto3.client(service_name='dynamodb')
+dynamodb = boto3.resource(service_name='dynamodb',
+                          aws_access_key_id=os.getenv("AccessKey"),
+                          aws_secret_access_key=os.getenv("SecretKey"),
+                          region_name="ca-central-1")
+dynamodb_client = boto3.client(service_name='dynamodb',
+                               aws_access_key_id=os.getenv("AccessKey"),
+                               aws_secret_access_key=os.getenv("SecretKey"),
+                               region_name="ca-central-1")
 
 
 def get_items_from_db(table_name):
@@ -29,7 +34,7 @@ def get_items_from_db(table_name):
     except ClientError as e:
         print(f"error: {e}")
     else:
-        print(response)
+        return response
 
 # Pseudo DB
 # Db = {
@@ -90,7 +95,7 @@ def get_items_from_db(table_name):
 # Place holder index
 @app.route('/')
 def initialize_frontend():
-    return {"data": 'Hello world!'}
+    return get_items_from_db("keep-it-wild-az")
 #
 #
 # # Get all orders from Client ID to date
