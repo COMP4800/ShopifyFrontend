@@ -259,7 +259,7 @@ def get_monthly_orders(year, month):
 
 
     try:
-        table = dynamodb.Table("test1")
+        table = dynamodb.Table("keep-it-wild-az")
         response = table.scan(
             # FilterExpression=filter_expression
         )
