@@ -91,79 +91,79 @@ def get_items_from_db(table_name):
 @app.route('/')
 def initialize_frontend():
     return {"data": 'Hello world!'}
+#
+#
+# # Get all orders from Client ID to date
+# @app.route('/orders/<client_id>')
+# def get_client_orders(client_id):
+#     # Query database for result
+#     orders = collection.find({"shopify_id": client_id})
+#     data = json.loads(json_util.dumps(list(orders)))
+#     # Return result of query in Data
+#     return {"client_id": client_id, "data": data}
+#
+#
+# # Get all orders from a specified year of Client ID to date
+# @app.route('/orders/<client_id>/<year>')
+# def get_client_orders_year(client_id, year):
+#     # Query database for result
+#     orders = collection.find({"shopify_id": client_id})
+#     data = json.loads(json_util.dumps(list(orders)))
+#     parsed_data = []
+#     for _each in data:
+#         date = _each["date"]
+#         if re.search(f"/{year}", f"{date}"):
+#             parsed_data.append(_each)
+#     # Return result of query in Data
+#     return {"client_id": client_id,
+#             "year": year,
+#             "data": parsed_data}
+#
+#
+# # Get all orders from a specified year and month of Client ID to date
+# @app.route('/orders/<client_id>/<year>/<month>')
+# def get_client_orders_year_month(client_id, year, month):
+#     # Query database for result
+#     orders = collection.find({"shopify_id": client_id})
+#     data = json.loads(json_util.dumps(list(orders)))
+#     parsed_data = []
+#     for _each in data:
+#         date = _each["date"]
+#         if re.search(f"/{year}", f"{date}"):
+#             if date[1] == "/":
+#                 striped_string = date[0]
+#                 print(striped_string)
+#                 if int(month) < int(striped_string):
+#                     parsed_data.append(_each)
+#             else:
+#                 striped_string = date[0:2]
+#                 print(striped_string)
+#                 if int(month) < int(striped_string):
+#                     parsed_data.append(_each)
+#             # parsed_data.append(_each)
+#
+#     # Return result of query in Data
+#     return {"client_id": client_id,
+#             "year": year,
+#             "month": month,
+#             "data": parsed_data}
+#
 
+# @app.route('/orders/<client_id>/transform/<customer_id>')
+# def get_client_first_order_date(client_id, customer_id):
+#     # Query database for result
+#     orders = collection.find({"shopify_id": client_id})
+#     data = json.loads(json_util.dumps(list(orders)))
+#     parsed_data = []
+#     # Return result of query in Data
+#     for _each in data:
+#         cid = _each["customer_id"]
+#         if re.search(f"{customer_id}", f"{cid}"):
+#             parsed_data.append(_each.get("date"))
+#     dates = [datetime.datetime.strptime(ts, "%m/%d/%Y") for ts in parsed_data]
+#     dates.sort()
+#     sorted_dates = [datetime.datetime.strftime(ts, "%m/%d/%Y") for ts in dates]
+#     first_date = sorted_dates[0]
+#     return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
 
-# Get all orders from Client ID to date
-@app.route('/orders/<client_id>')
-def get_client_orders(client_id):
-    # Query database for result
-    orders = collection.find({"shopify_id": client_id})
-    data = json.loads(json_util.dumps(list(orders)))
-    # Return result of query in Data
-    return {"client_id": client_id, "data": data}
-
-
-# Get all orders from a specified year of Client ID to date
-@app.route('/orders/<client_id>/<year>')
-def get_client_orders_year(client_id, year):
-    # Query database for result
-    orders = collection.find({"shopify_id": client_id})
-    data = json.loads(json_util.dumps(list(orders)))
-    parsed_data = []
-    for _each in data:
-        date = _each["date"]
-        if re.search(f"/{year}", f"{date}"):
-            parsed_data.append(_each)
-    # Return result of query in Data
-    return {"client_id": client_id,
-            "year": year,
-            "data": parsed_data}
-
-
-# Get all orders from a specified year and month of Client ID to date
-@app.route('/orders/<client_id>/<year>/<month>')
-def get_client_orders_year_month(client_id, year, month):
-    # Query database for result
-    orders = collection.find({"shopify_id": client_id})
-    data = json.loads(json_util.dumps(list(orders)))
-    parsed_data = []
-    for _each in data:
-        date = _each["date"]
-        if re.search(f"/{year}", f"{date}"):
-            if date[1] == "/":
-                striped_string = date[0]
-                print(striped_string)
-                if int(month) < int(striped_string):
-                    parsed_data.append(_each)
-            else:
-                striped_string = date[0:2]
-                print(striped_string)
-                if int(month) < int(striped_string):
-                    parsed_data.append(_each)
-            # parsed_data.append(_each)
-
-    # Return result of query in Data
-    return {"client_id": client_id,
-            "year": year,
-            "month": month,
-            "data": parsed_data}
-
-
-@app.route('/orders/<client_id>/transform/<customer_id>')
-def get_client_first_order_date(client_id, customer_id):
-    # Query database for result
-    orders = collection.find({"shopify_id": client_id})
-    data = json.loads(json_util.dumps(list(orders)))
-    parsed_data = []
-    time_data = []
-    # Return result of query in Data
-    for _each in data:
-        cid = _each["customer_id"]
-        if re.search(f"{customer_id}", f"{cid}"):
-            parsed_data.append(_each.get("date"))
-    dates = [datetime.datetime.strptime(ts, "%m/%d/%Y") for ts in parsed_data]
-    dates.sort()
-    sorted_dates = [datetime.datetime.strftime(ts, "%m/%d/%Y") for ts in dates]
-    first_date = sorted_dates[0]
-    return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
 
