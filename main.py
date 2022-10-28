@@ -1,20 +1,22 @@
 import json
 import datetime
-from flask import Flask
+
+import requests
+from flask import Flask, request
 import re
 import pymongo
 from botocore.exceptions import ClientError
 from bson import json_util
 import boto3
 import os
+from boto3.dynamodb.conditions import Key
 
 
 app = Flask(__name__)
 
-MONGO_CONNECTION_URI = "mongodb+srv://adminTester:ETh5oidcvfuVCwWr@testinggrounds.brdchna.mongodb.net/?retryWrites=true&w=majority"
-client = pymongo.MongoClient(MONGO_CONNECTION_URI)
-DB = client.get_database('EightXTest')
-collection = DB.get_collection('Orders')
+# MONGO_CONNECTION_URI = "mongodb+srv://adminTester:ETh5oidcvfuVCwWr@testinggrounds.brdchna.mongodb.net/?retryWrites
+# =true&w=majority" client = pymongo.MongoClient(MONGO_CONNECTION_URI) DB = client.get_database('EightXTest')
+# collection = DB.get_collection('Orders')
 
 dynamodb = boto3.resource(service_name='dynamodb',
                           aws_access_key_id=os.getenv("AccessKey"),
@@ -27,6 +29,11 @@ dynamodb_client = boto3.client(service_name='dynamodb',
 
 
 def get_items_from_db(table_name):
+    """
+    Get all the orders from AWS DynamoDb
+    :param table_name: a string
+    :return: A JSON response
+    """
     try:
         table = dynamodb.Table(table_name)
         response = table.scan()['Items']
@@ -95,6 +102,9 @@ def get_items_from_db(table_name):
 # Place holder index
 @app.route('/')
 def initialize_frontend():
+    """
+    Route for getting all the orders
+    """
     return get_items_from_db("keep-it-wild-az")
 #
 #
@@ -172,3 +182,36 @@ def initialize_frontend():
 #     return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
 
 
+@app.route('/orders/<year>')
+def get_yearly_orders(year):
+    """
+    This route gets all the orders by year
+    :param year: an int
+    :return: a JSON
+    """
+    table = dynamodb.Table("keep-it-wild-az")
+    filter_expression = Key('OrderDate').between(f'{year}-01-01', f'{year}-12-31')
+    response = table.scan(
+        FilterExpression=filter_expression
+    )
+    return response['Items']
+
+
+# @app.route('/orders/<start_date>/<end_date>')
+# def get_order_between_date_range(start_date, end_date):
+#     table = dynamodb.Table("keep-it-wild-az")
+#     filter_expression = Key('OrderDate').between(start_date, f'{end_date}T24:00:00Z')
+#     response = table.scan(
+#         FilterExpression=filter_expression
+#     )
+#     # response = table.query(
+#     #     IndexName="OrderID-OrderDate-index",
+#     #     # KeyConditionExpression=Key('OrderDate').between(f'{start_date}T12:00:00Z', f'{end_date}T12:00:00Z'),
+#     #     KeyCondition=f"OrderID = :id and OrderDate = :{start_date} BETWEEN {end_date}"
+#     #
+#     #     # FilterExpression=f'OrderDate = :OrderDate between :{start_date} and :{end_date}'
+#     #
+#     #
+#     #     # KeyConditionExpression=Key('OrderDate').lt(start_date)
+#     # )
+#     return response['Items']
