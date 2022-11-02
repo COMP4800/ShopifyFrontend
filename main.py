@@ -1,6 +1,9 @@
+import itertools
 import json
 import datetime
 
+import pandas
+from openpyxl import Workbook, load_workbook
 import requests
 from flask import Flask, request
 import re
@@ -241,6 +244,7 @@ def get_daily_orders(year, month, day):
     except ClientError as err:
         return {"err": err}
 
+
 @app.route('/orders/<year>/<month>')
 def get_monthly_orders(year, month):
     """
@@ -279,23 +283,27 @@ def get_monthly_orders(year, month):
     #         break
     # return parsed_data
 
-
     try:
         # table = dynamodb.Table("keep-it-wild-az")
-        table = dynamodb.Table("test1")
+        table = dynamodb.Table("test2")
         response = table.scan(
             # FilterExpression=filter_expression
         )
         data = response['Items']
         parsed_data = []
+        net_sales = 0
+        total_sales = 0
         for each_item in response['Items']:
             date_year = str(each_item["OrderDate"])[0:4]
             date_month = str(each_item["OrderDate"])[5:7]
             if date_year == year and date_month == month:
+                net_sales += float(each_item["NetSales"])
+                total_sales += float(each_item["TotalSales"])
                 # date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
                 # if date.year == int(year) and date.month == int(month):
                 parsed_data.append(each_item)
-
+        print(f"TotalSales: {total_sales}")
+        print(f"NetSales: {net_sales}")
         # while 'LastEvaluatedKey' in response:
         #     response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
         #     data.extend(response['Items'])
@@ -323,54 +331,61 @@ def get_yearly_orders(year):
 
     try:
         filter_expression = Key('OrderDate').between(f'{year}-01-01T00:00:00Z', f'{year}-12-31T24:00:00Z')
-        table = dynamodb.Table("keep-it-wild-az")
+        table = dynamodb.Table("test2")
         response = table.scan(
             # FilterExpression=filter_expression
         )
         data = response['Items']
         parsed_data = []
+        item_count = 0
+        gross_sales = 0
+        net_sales = 0
+        total_sales = 0
         while 'LastEvaluatedKey' in response:
             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
             data.extend(response['Items'])
             print(len(data))
+            item_count += len(response["Items"])
             for each_item in response['Items']:
-                date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
-                if date.year == int(year):
+                gross_sales += float(each_item["GrossSales"])
+                net_sales += float(each_item["NetSales"])
+                total_sales += float(each_item["TotalSales"])
+                date_year = str(each_item["OrderDate"])[0:4]
+                if date_year == str(year):
                     parsed_data.append(each_item)
+        print(f'Item Count: {item_count}')
         print(len(parsed_data))
+        print(gross_sales)
+        print(net_sales)
+        print(total_sales)
         return parsed_data
     except ClientError as err:
         return err
 
-    # response = table.scan(
-    # )
-    # return response['Items']
 
+@app.route('/<client_name>/orders/<year>/<month>')
+def get_orders_by_month(client_name, year, month):
+    table = dynamodb.Table(client_name)
+    lastEvaluatedKey = None
+    items = []
+    parsed_items = []
+    while True:
+        if lastEvaluatedKey is None:
+            response = table.scan()
+        else:
+            response = table.scan(
+                ExclusiveStartKey=lastEvaluatedKey
+            )
+        items.extend(response['Items'])
+        print(len(items))
+        for each_item in response['Items']:
+            if str(each_item["OrderDate"])[0:4] == year:
+                parsed_items.append(each_item)
+        if 'LastEvaluatedKey' in response:
+            lastEvaluatedKey = response['LastEvaluatedKey']
+        else:
+            break
+    print(len(items))
+    print(len(parsed_items))
+    return parsed_items
 
-# @app.route('/orders/<start_date>/<end_date>')
-# def get_order_between_date_range(start_date, end_date):
-#     try:
-#         filter_expression = Key('OrderDate').between(f'{start_date}T00:00:00Z', f'{end_date}T24:00:00Z')
-#         table = dynamodb.Table("keep-it-wild-az")
-#         response = table.scan(
-#             FilterExpression=filter_expression
-#         )
-#         data = response['Items']
-#         while 'LastEvaluatedKey' in response:
-#             response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
-#             data.extend(response['Items'])
-#         return data
-#     except ClientError as err:
-#         return err
-
-    # response = table.query(
-    #     IndexName="OrderID-OrderDate-index",
-    #     # KeyConditionExpression=Key('OrderDate').between(f'{start_date}T12:00:00Z', f'{end_date}T12:00:00Z'),
-    #     KeyCondition=f"OrderID = :id and OrderDate = :{start_date} BETWEEN {end_date}"
-    #
-    #     # FilterExpression=f'OrderDate = :OrderDate between :{start_date} and :{end_date}'
-    #
-    #
-    #     # KeyConditionExpression=Key('OrderDate').lt(start_date)
-    # )
-    # return response['Items']
