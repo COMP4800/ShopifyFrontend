@@ -15,11 +15,6 @@ import os
 from boto3.dynamodb.conditions import Key
 
 app = Flask(__name__)
-
-# MONGO_CONNECTION_URI = "mongodb+srv://adminTester:ETh5oidcvfuVCwWr@testinggrounds.brdchna.mongodb.net/?retryWrites
-# =true&w=majority" client = pymongo.MongoClient(MONGO_CONNECTION_URI) DB = client.get_database('EightXTest')
-# collection = DB.get_collection('Orders')
-
 dynamodb = boto3.resource(service_name='dynamodb',
                           aws_access_key_id=os.getenv("AccessKey"),
                           aws_secret_access_key=os.getenv("SecretKey"),
@@ -67,70 +62,6 @@ def get_items_from_db(table_name):
     except ClientError as err:
         return err
 
-    # try:
-    #     response = table.scan()['Items']
-    #     print(response)
-    # except ClientError as e:
-    #     print(f"error: {e}")
-    # else:
-    #     return response
-
-
-# Pseudo DB
-# Db = {
-#     "clients": [
-#         {"_id": 1}, {"_id": 2}, {"_id": 3}
-#     ],
-#     "orders": [
-#         {
-#             "_id": 1,
-#             "client_id": 1,
-#             "customer_id": 1,
-#             "month": "2/31/2021",
-#             "orders": 1,
-#             "gross_sales": 497,
-#             "discounts": -497,
-#             "returns": 0,
-#             "net_sales": 0,
-#             "shipping": 0,
-#             "taxes": 0,
-#             "total_sales": 0,
-#             "average_order_value": 0
-#         },
-#         {
-#             "_id": 2,
-#             "client_id": 2,
-#             "customer_id": 18,
-#             "month": "7/31/2022",
-#             "orders": 1,
-#             "gross_sales": 497,
-#             "discounts": -497,
-#             "returns": 0,
-#             "net_sales": 0,
-#             "shipping": 0,
-#             "taxes": 0,
-#             "total_sales": 0,
-#             "average_order_value": 0
-#         },
-#         {
-#             "_id": 3,
-#             "client_id": 1,
-#             "customer_id": 17,
-#             "month": "7/31/2022",
-#             "orders": 1,
-#             "gross_sales": 51,
-#             "discounts": -7.65,
-#             "returns": 0,
-#             "net_sales": 43.35,
-#             "shipping": 9.99,
-#             "taxes": 0,
-#             "total_sales": 53.34,
-#             "average_order_value": 53.34
-#         },
-#
-#     ],
-# }
-
 
 @app.route("/")
 def welcome():
@@ -144,82 +75,6 @@ def initialize_frontend():
     """
     # return dump_table("keep-it-wild-az")
     return get_items_from_db("keep-it-wild-az")
-
-
-#
-#
-# # Get all orders from Client ID to date
-# @app.route('/orders/<client_id>')
-# def get_client_orders(client_id):
-#     # Query database for result
-#     orders = collection.find({"shopify_id": client_id})
-#     data = json.loads(json_util.dumps(list(orders)))
-#     # Return result of query in Data
-#     return {"client_id": client_id, "data": data}
-#
-#
-# # Get all orders from a specified year of Client ID to date
-# @app.route('/orders/<client_id>/<year>')
-# def get_client_orders_year(client_id, year):
-#     # Query database for result
-#     orders = collection.find({"shopify_id": client_id})
-#     data = json.loads(json_util.dumps(list(orders)))
-#     parsed_data = []
-#     for _each in data:
-#         date = _each["date"]
-#         if re.search(f"/{year}", f"{date}"):
-#             parsed_data.append(_each)
-#     # Return result of query in Data
-#     return {"client_id": client_id,
-#             "year": year,
-#             "data": parsed_data}
-#
-#
-# # Get all orders from a specified year and month of Client ID to date
-# @app.route('/orders/<client_id>/<year>/<month>')
-# def get_client_orders_year_month(client_id, year, month):
-#     # Query database for result
-#     orders = collection.find({"shopify_id": client_id})
-#     data = json.loads(json_util.dumps(list(orders)))
-#     parsed_data = []
-#     for _each in data:
-#         date = _each["date"]
-#         if re.search(f"/{year}", f"{date}"):
-#             if date[1] == "/":
-#                 striped_string = date[0]
-#                 print(striped_string)
-#                 if int(month) < int(striped_string):
-#                     parsed_data.append(_each)
-#             else:
-#                 striped_string = date[0:2]
-#                 print(striped_string)
-#                 if int(month) < int(striped_string):
-#                     parsed_data.append(_each)
-#             # parsed_data.append(_each)
-#
-#     # Return result of query in Data
-#     return {"client_id": client_id,
-#             "year": year,
-#             "month": month,
-#             "data": parsed_data}
-#
-
-# @app.route('/orders/<client_id>/transform/<customer_id>')
-# def get_client_first_order_date(client_id, customer_id):
-#     # Query database for result
-#     orders = collection.find({"shopify_id": client_id})
-#     data = json.loads(json_util.dumps(list(orders)))
-#     parsed_data = []
-#     # Return result of query in Data
-#     for _each in data:
-#         cid = _each["customer_id"]
-#         if re.search(f"{customer_id}", f"{cid}"):
-#             parsed_data.append(_each.get("date"))
-#     dates = [datetime.datetime.strptime(ts, "%m/%d/%Y") for ts in parsed_data]
-#     dates.sort()
-#     sorted_dates = [datetime.datetime.strftime(ts, "%m/%d/%Y") for ts in dates]
-#     first_date = sorted_dates[0]
-#     return {"client_id": client_id, "customer_id": customer_id, "first_order_date": first_date}
 
 
 @app.route('/orders/<year>/<month>/<day>')
@@ -253,36 +108,6 @@ def get_monthly_orders(year, month):
     :param month: a number
     :return: a JSON
     """
-    # table_name = "keep-it-wild-az"
-    # results = []
-    # last_evaluated_key = None
-    # parsed_data = []
-    # while True:
-    #     if last_evaluated_key:
-    #         response = dynamodb_client.scan(
-    #             TableName=table_name,
-    #             ExclusiveStartKey=last_evaluated_key
-    #         )
-    #     else:
-    #         response = dynamodb_client.scan(TableName=table_name)
-    #     last_evaluated_key = response.get('LastEvaluatedKey')
-    #
-    #     results.extend(response['Items'])
-    #     print(len(results))
-    #
-    #     for each_item in response['Items']:
-    #         # print(each_item["OrderDate"])
-    #         if len(each_item["OrderDate"]) == 20:
-    #             date = datetime.datetime.fromisoformat(each_item["OrderDate"].rstrip(each_item["OrderDate"][-1]))
-    #             if date.year == int(year) and date.month == int(month):
-    #                 parsed_data.append(each_item)
-    #         else:
-    #             print("no")
-    #
-    #     if not last_evaluated_key:
-    #         break
-    # return parsed_data
-
     try:
         # table = dynamodb.Table("keep-it-wild-az")
         table = dynamodb.Table("test2")
@@ -363,29 +188,97 @@ def get_yearly_orders(year):
         return err
 
 
-@app.route('/<client_name>/orders/<year>/<month>')
-def get_orders_by_month(client_name, year, month):
-    table = dynamodb.Table(client_name)
-    lastEvaluatedKey = None
-    items = []
-    parsed_items = []
-    while True:
-        if lastEvaluatedKey is None:
-            response = table.scan()
-        else:
-            response = table.scan(
-                ExclusiveStartKey=lastEvaluatedKey
-            )
-        items.extend(response['Items'])
-        print(len(items))
-        for each_item in response['Items']:
-            if str(each_item["OrderDate"])[0:4] == year:
-                parsed_items.append(each_item)
-        if 'LastEvaluatedKey' in response:
-            lastEvaluatedKey = response['LastEvaluatedKey']
-        else:
-            break
-    print(len(items))
-    print(len(parsed_items))
-    return parsed_items
+# @app.route('/<client_name>/orders/<year>/<month>')
+# def get_orders_by_month(client_name, year, month):
+#     table = dynamodb.Table(client_name)
+#     lastEvaluatedKey = None
+#     items = []
+#     parsed_items = []
+#     while True:
+#         if lastEvaluatedKey is None:
+#             response = table.scan()
+#         else:
+#             response = table.scan(
+#                 ExclusiveStartKey=lastEvaluatedKey
+#             )
+#         items.extend(response['Items'])
+#         print(len(items))
+#         for each_item in response['Items']:
+#             if str(each_item["OrderDate"])[0:4] == year:
+#                 parsed_items.append(each_item)
+#         if 'LastEvaluatedKey' in response:
+#             lastEvaluatedKey = response['LastEvaluatedKey']
+#         else:
+#             break
+#     print(len(items))
+#     print(len(parsed_items))
+#     return parsed_items
 
+
+@app.route('/<client_name>/orders/<year>/<month>')
+def get_orders_by_month_using_lsi(client_name, year, month):
+    """QUERY FIX!"""
+    """
+    Get orders by month from the Local Secondary Index
+    :param client_name: name of the client
+    :param year: the year -> yyyy
+    :param month: the month -> mm
+    :return: a list of JSON objects
+    """
+    print("Hello")
+    try:
+        table = dynamodb.Table(f'{client_name}-raw-with-LSI-only-Year-PK')
+        Items = []
+        response = table.query(
+            IndexName="OrdersByMonthAndDate",
+            KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
+                                                                                   f'{year}-{int(month) + 1}-01')
+        )
+        Items.extend(response['Items'])
+        print(response)
+
+        while 'LastEvaluatedKey' in response:
+            response = table.query(
+                IndexName="OrdersByMonthAndDate",
+                KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
+                                                                                       f'{year}-{int(month) + 1}-01'),
+                ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+            Items.extend(response['Items'])
+        return Items
+    except ClientError as err:
+        print(err)
+        return {"err": f'{err}'}
+
+
+@app.route('/<client_name>/orders/<year>/')
+def get_orders_by_month_using_lsi(client_name, year):
+    """QUERY FIX"""
+    """
+    Get orders by year from the Local Secondary Index
+    :param client_name: name of the client
+    :param year: the year -> yyyy
+    :return: a list of JSON objects
+    """
+    print("Hello")
+    try:
+        table = dynamodb.Table(f'{client_name}-raw-with-LSI-only-Year-PK')
+        Items = []
+        response = table.query(
+            IndexName="OrdersByMonthAndDate",
+            KeyConditionExpression=Key('Year').eq(year)
+        )
+        Items.extend(response['Items'])
+        print(response)
+
+        while 'LastEvaluatedKey' in response:
+            response = table.query(
+                IndexName="OrdersByMonthAndDate",
+                KeyConditionExpression=Key('Year').eq(year),
+                ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+            Items.extend(response['Items'])
+        return Items
+    except ClientError as err:
+        print(err)
+        return {"err": f'{err}'}

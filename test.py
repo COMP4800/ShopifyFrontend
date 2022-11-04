@@ -12,5 +12,5 @@ BASE_URL = "http://127.0.0.1:5000/"
 # response = requests.get(BASE_URL + "orders/1/2022")
 # print(response.json())
 
-response = requests.get(BASE_URL + "orders/1/2022/1")
+response = requests.get(BASE_URL + "orders/keep-it-wild-az/2022/09")
 print(response.json())
