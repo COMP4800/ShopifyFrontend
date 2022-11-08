@@ -230,7 +230,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
         dtObj = datetime.strptime(entered_date, date_format)
         n = 1
         future_date = dtObj + relativedelta(months=n)
-        future_date = future_date.date()
+        future_date = future_date.date().isoformat()
         # --------------------------------------------------------------------------------------------------------------
         response = table.query(
             IndexName="OrdersByMonthAndDate",
