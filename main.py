@@ -225,7 +225,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
 
         # DATE FORMATTING
         # --------------------------------------------------------------------------------------------------------------
-        entered_date = f'1/{month}/{year}'
+        entered_date = f'01/{month}/{year}'
         date_format = '%d/%m/%Y'
         dtObj = datetime.strptime(entered_date, date_format)
         n = 1
