@@ -242,7 +242,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
 
 
 @app.route('/<client_name>/orders/<year>/')
-def get_orders_by_month_using_lsi(client_name, year):
+def get_orders_by_year_using_lsi(client_name, year):
     """QUERY FIX"""
     """
     Get orders by year from the Local Secondary Index
