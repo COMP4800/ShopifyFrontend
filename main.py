@@ -225,17 +225,14 @@ def get_orders_by_month_using_lsi(client_name, year, month):
 
         # DATE FORMATTING
         # --------------------------------------------------------------------------------------------------------------
-        entered_date = f'1/{month}/{year}'
-        date_format = '%d/%m/%Y'
-        dtObj = datetime.strptime(entered_date, date_format)
+        given_date = datetime.fromisoformat(f"{year}-{month}-01")
         n = 1
-        future_date = dtObj + relativedelta(months=n)
-        future_date = future_date.date().isoformat()
+        future_date = given_date + relativedelta(months=n)
         # --------------------------------------------------------------------------------------------------------------
         response = table.query(
             IndexName="OrdersByMonthAndDate",
             KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                   f'{future_date}')
+                                                                                   f'{future_date.date().isoformat()}')
         )
         Items.extend(response['Items'])
         print(response)
