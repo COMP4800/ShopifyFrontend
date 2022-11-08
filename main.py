@@ -222,6 +222,8 @@ def get_orders_by_month_using_lsi(client_name, year, month):
         next_month = 0
         if(len(str(int(month) + 1))) == 1:
             next_month = f'0{int(month) + 1}'
+        else:
+            next_month += 1
         response = table.query(
             IndexName="OrdersByMonthAndDate",
             KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
