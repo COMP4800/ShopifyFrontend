@@ -1,15 +1,5 @@
-import itertools
-import json
-import datetime
-
-import pandas
-from openpyxl import Workbook, load_workbook
-import requests
-from flask import Flask, request
-import re
-import pymongo
+from flask import Flask
 from botocore.exceptions import ClientError
-from bson import json_util
 import boto3
 import os
 from boto3.dynamodb.conditions import Key
