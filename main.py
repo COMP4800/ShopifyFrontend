@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from dateutil.relativedelta import relativedelta
 from flask import Flask
 from botocore.exceptions import ClientError
 import boto3
@@ -219,15 +222,20 @@ def get_orders_by_month_using_lsi(client_name, year, month):
     try:
         table = dynamodb.Table(f'{client_name}-raw')
         Items = []
-        next_month = 0
-        if(len(str(int(month) + 1))) == 1:
-            next_month = f'0{int(month) + 1}'
-        else:
-            next_month += 1
+
+        # DATE FORMATTING
+        # --------------------------------------------------------------------------------------------------------------
+        entered_date = f'1/{month}/{year}'
+        date_format = '%d/%m/%Y'
+        dtObj = datetime.strptime(entered_date, date_format)
+        n = 1
+        future_date = dtObj + relativedelta(months=n)
+        future_date = future_date.date()
+        # --------------------------------------------------------------------------------------------------------------
         response = table.query(
             IndexName="OrdersByMonthAndDate",
             KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                   f'{year}-{next_month}-01')
+                                                                                   f'{future_date}')
         )
         Items.extend(response['Items'])
         print(response)
@@ -236,7 +244,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
             response = table.query(
                 IndexName="OrdersByMonthAndDate",
                 KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                       f'{year}-{next_month}-01'),
+                                                                                       f'{year}-{future_date}-01'),
                 ExclusiveStartKey=response['LastEvaluatedKey']
             )
             Items.extend(response['Items'])
