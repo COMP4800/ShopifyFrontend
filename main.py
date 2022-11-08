@@ -227,7 +227,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
     """
     print("Hello")
     try:
-        table = dynamodb.Table(f'{client_name}-raw-with-LSI-only-Year-PK')
+        table = dynamodb.Table(f'{client_name}-raw')
         Items = []
         response = table.query(
             IndexName="OrdersByMonthAndDate",
@@ -262,7 +262,7 @@ def get_orders_by_month_using_lsi(client_name, year):
     """
     print("Hello")
     try:
-        table = dynamodb.Table(f'{client_name}-raw-with-LSI-only-Year-PK')
+        table = dynamodb.Table(f'{client_name}-raw')
         Items = []
         response = table.query(
             IndexName="OrdersByMonthAndDate",
