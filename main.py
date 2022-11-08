@@ -219,10 +219,13 @@ def get_orders_by_month_using_lsi(client_name, year, month):
     try:
         table = dynamodb.Table(f'{client_name}-raw')
         Items = []
+        next_month = 0
+        if(len(str(int(month) + 1))) == 1:
+            next_month = f'0{int(month) + 1}'
         response = table.query(
             IndexName="OrdersByMonthAndDate",
             KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                   f'{year}-{int(month) + 1}-01')
+                                                                                   f'{year}-{next_month}-01')
         )
         Items.extend(response['Items'])
         print(response)
@@ -231,7 +234,7 @@ def get_orders_by_month_using_lsi(client_name, year, month):
             response = table.query(
                 IndexName="OrdersByMonthAndDate",
                 KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                       f'{year}-{int(month) + 1}-01'),
+                                                                                       f'{year}-{next_month}-01'),
                 ExclusiveStartKey=response['LastEvaluatedKey']
             )
             Items.extend(response['Items'])
