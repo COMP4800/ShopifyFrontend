@@ -282,3 +282,40 @@ def get_orders_by_year_using_lsi(client_name, year):
     except ClientError as err:
         print(err)
         return {"err": f'{err}'}
+
+
+@app.route('/initiate/<client_name>/<access_token>/<api_secret>/<api_key>/')
+def post_client_info(client_name, api_key, api_secret, access_token):
+    print("Hello")
+    # test_dict = {'name': client_name, 'Access-Token': access_token, 'API-Secret': api_secret, 'API-Key': api_key}
+    try:
+        table = dynamodb.Table('ClientInfo')
+        response = table.scan()
+        for client_table in response['Items']:
+            # compare all fields of given client info
+            if client_table['name'] == client_name and client_table['Access-Token'] == access_token and \
+                    client_table['API-Secret'] == api_secret and client_table['API-Key'] == api_key:
+                # print(client_name)
+                # new_table = dynamodb.Table(f'{client_name}-raw')
+                # Items = []
+                # new_response = new_table.scan()
+                # Items.extend(new_response['Items'])
+                # print(Items)
+                # return Items
+                return f'Sorry the information you entered already exist as the {client_name}! Please refill the ' \
+                       f'information! '
+            else:
+                response = table.put_item(
+                    Item={
+                        'name': client_name,
+                        'Access-Token': access_token,
+                        'API-Secret': api_secret,
+                        'API-Key': api_key
+                    }
+                )
+                print(response)
+                return response
+
+    except ClientError as err:
+        print(err)
+        return {"err": f'{err}'}
