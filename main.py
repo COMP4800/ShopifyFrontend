@@ -241,7 +241,9 @@ def get_orders_by_month_using_lsi(client_name, year, month):
             response = table.query(
                 IndexName="OrdersByMonthAndDate",
                 KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
-                                                                                       f'{year}-{future_date}-01'),
+                                                                                       f'{future_date.date().isoformat()}'),
+                # KeyConditionExpression=Key('Year').eq(year) & Key('OrderDate').between(f'{year}-{month}-01',
+                #                                                                        f'{year}-{future_date}-01'),
                 ExclusiveStartKey=response['LastEvaluatedKey']
             )
             Items.extend(response['Items'])
