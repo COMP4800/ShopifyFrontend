@@ -1,5 +1,7 @@
+import json
 from datetime import datetime
 
+import requests
 from dateutil.relativedelta import relativedelta
 from flask import Flask
 from botocore.exceptions import ClientError
@@ -321,3 +323,22 @@ def post_client_info(client_name, api_key, api_secret, access_token):
     except ClientError as err:
         print(err)
         return {"err": f'{err}'}
+
+
+@app.route('/getShopsCreationDate/<client_name>/')
+def get_shops_creation_date(client_name):
+    api_key = ""
+    access_token = ""
+    table = dynamodb.Table("ClientInfo")
+    response = table.scan()
+    Items = response['Items']
+    for client in Items:
+        if client["name"] == client_name:
+            api_key = client["API-Key"]
+            access_token = client["Access-Token"]
+    res = requests.get(
+        f"https://{api_key}:{access_token}@{client_name}.myshopify.com/admin/2022-10/shop.json"
+    )
+    return json.loads(json.dumps(res.json()))['shop']['created_at']
+
+
