@@ -336,9 +336,11 @@ def get_shops_creation_date(client_name):
         if client["name"] == client_name:
             api_key = client["API-Key"]
             access_token = client["Access-Token"]
+            print(client)
     res = requests.get(
-        f"https://{api_key}:{access_token}@{client_name}.myshopify.com/admin/2022-10/shop.json"
+        f"https://{api_key}:{access_token}@{client_name}.myshopify.com/admin/api/2022-10/shop.json"
     )
-    return json.loads(json.dumps(res.json()))['shop']['created_at']
+    date = datetime.fromisoformat(json.loads(json.dumps(res.json()))['shop']['created_at']).year
+    return {"shops_creation_year": date}
 
 
