@@ -327,6 +327,11 @@ def post_client_info(client_name, api_key, api_secret, access_token):
 
 @app.route('/getShopsCreationDate/<client_name>/')
 def get_shops_creation_date(client_name):
+    """
+    Get the date when the ship was created
+    :param client_name: The name of the shopify store.
+    :return: Json response -> The date of creation of the shop
+    """
     api_key = ""
     access_token = ""
     table = dynamodb.Table("ClientInfo")
@@ -342,5 +347,18 @@ def get_shops_creation_date(client_name):
     )
     date = datetime.fromisoformat(json.loads(json.dumps(res.json()))['shop']['created_at']).year
     return {"shops_creation_year": date}
+
+
+@app.route('/<client_name>/transformations/')
+def get_transformations(client_name):
+    """
+    Get all transformations for a given shopify store
+    :param client_name: The name of the shopify store
+    :return: The JSON -> Transformations
+    """
+    table = dynamodb.Table(f'{client_name}-transformed')
+    response = table.scan()
+    transformations = response["Items"]
+    return transformations
 
 
